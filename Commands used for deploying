@@ -1,0 +1,56 @@
+<!-- first use the stack from course publish for saving s3 money and apply it to my aws account -->
+aws cloudformation create-stack --stack-name vpc-production --template-url https://s3.amazonaws.com/architecting-operational-excellence-aws/vpc.yaml
+
+<!-- use commandline to chack if cloud stacj created or not (you can use Aws extension for better gui) -->
+aws cloudformation describe-stacks
+
+<!-- list all created resources using the last stack -->
+aws cloudformation list-stack-resources --stack-name vpc-production
+
+<!-- delete the created Cloudstack  -->
+aws cloudformation delete-stack --stack-name vpc-production
+
+<!-- passing the parameter in cloudformation is little bit crazy -->
+aws cloudformation create-stack --stack-name vpc-production --template-url https://s3.amazonaws.com/architecting-operational-excellence-aws/vpc.yaml --parameters ParameterKey=VpcCIDR,ParameterValue=10.8.0.0/22 ParameterKey=PublicSubnet1CIDR,ParameterValue=10.8.1.0/24 ParameterKey=PublicSubnet2CIDR,ParameterValue=10.8.2.0/24 
+
+<!-- updating existing stack with new values without removing it -->
+
+aws cloudformation update-stack --stack-name vpc-production --template-url https://s3.amazonaws.com/architecting-operational-excellence-aws/vpc.yaml --parameters ParameterKey=VpcCIDR,ParameterValue=10.7.0.0/22 ParameterKey=PublicSubnet1CIDR,ParameterValue=10.7.1.0/24 ParameterKey=PublicSubnet2CIDR,ParameterValue=10.7.2.0/24 
+
+
+<!-- we can apply stack policy only while creating stack so delete old one and create new one with applying the stack policies -->
+aws cloudformation create-stack --stack-name vpc-production --template-url https://s3.amazonaws.com/architecting-operational-excellence-aws/vpc.yaml --stack-policy https://s3.amazonaws.com/architecting-operational-excellence-aws/vpc-policy.json
+
+<!-- when applying polies its prevent updating any thing so to override this we use follwing  -->
+
+aws cloudformation create-stack 
+--stack-name vpc-production 
+--template-url https://s3.amazonaws.com/architecting-operational-excellence-aws/vpc.yaml 
+--parameters 
+ParameterKey=VpcCIDR,ParameterValue=10.7.0.0/22 
+ParameterKey=PublicSubnet1CIDR,ParameterValue=10.7.1.0/24 
+ParameterKey=PublicSubnet2CIDR,ParameterValue=10.7.2.0/24 
+--stack-policy-during-update https://s3.amazonaws.com/architecting-operational-excellence-aws/policy-override.json
+
+
+<!-- now for createing some thing looklike pipeline we want to take output from stack as input to some stack ,
+by looking to load-balancer.yaml you will find we use the 2 subnet we created previously , this done by refre to stack have the created subnet VPCStackName,
+then pass its name it aws as parameter 
+ -->
+aws cloudformation create-stack --stack-name alb-production --template-url https://s3.amazonaws.com/architecting-operational-excellence-aws/load-balancer.yaml --parameters ParameterKey=VPCStackName,ParameterValue=vpc-production
+
+<!-- create the autoscaling group and the load balabcer as nested cloud formation inside it -->
+aws cloudformation create-stack `
+--stack-name auto-scaling-production `
+--template-url https://s3.amazonaws.com/architecting-operational-excellence-aws/auto-scaling.yaml `
+--parameters ParameterKey=VPCStackName,ParameterValue=vpc-production ParameterKey=KeyName,ParameterValue=Exellence `
+--capabilities CAPABILITY_NAMED_IAM
+
+
+
+
+
+
+
+
+

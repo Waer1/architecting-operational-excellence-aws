@@ -18,6 +18,7 @@ Parameters:
     Type: String
     Default: 10.7.2.0/24
 
+
 Resources:
   VPC:
     Type: AWS::EC2::VPC
@@ -28,7 +29,7 @@ Resources:
       Tags:
         -
           Key: Name
-          Value: !Ref AWS::StackName
+          Value:  !Ref AWS::StackName
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway

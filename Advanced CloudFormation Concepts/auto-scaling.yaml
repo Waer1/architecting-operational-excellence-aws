@@ -83,6 +83,7 @@ Mappings:
     cn-northwest-1:
       HVM64: ami-3e60745c
 
+#  the only requird section
 Resources:
   ALBStack:
     Description: The nested stack containing the application load balancer.
@@ -177,7 +178,7 @@ Resources:
         LaunchTemplateId:
           Ref: WebserverLaunchTemplate
         Version: '1'
-      MinSize: '1'
+      MinSize: '2'
       MaxSize: '6'
       DesiredCapacity:
         Ref: GroupSize
